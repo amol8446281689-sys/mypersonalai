@@ -1,0 +1,14 @@
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;max-width:900px;margin:0 auto;padding:1rem}
+header{display:flex;justify-content:space-between;align-items:center}
+#chat{min-height:60vh;border:1px solid #ddd;padding:1rem;border-radius:6px;overflow:auto;background:#fafafa}
+.message{margin:0.5rem 0;padding:0.6rem;border-radius:6px}
+.user{background:#e6f7ff;text-align:right}
+.ai{background:#fff;border:1px solid #eee}
+form{display:flex;gap:.5rem;margin-top:.5rem}
+input{flex:1;padding:.6rem;border:1px solid #ccc;border-radius:6px}
+button{padding:.5rem 0.8rem;border-radius:6px;border:0;background:#0366d6;color:#fff}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.35)}
+.modal .modal-content{background:#fff;padding:1rem;border-radius:8px;max-width:520px;width:100%}
+.modal .row{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
+.modal.show{display:flex}
+footer{margin-top:1rem;color:#666}

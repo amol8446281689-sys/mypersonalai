@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>mypersonalai — DevMind</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>DevMind — myPersonalAI</h1>
+    <button id="settingsBtn">⚙️ Settings</button>
+  </header>
+
+  <main>
+    <div id="chat"></div>
+    <form id="inputForm">
+      <input id="userInput" placeholder="Ask DevMind..." autocomplete="off" />
+      <button type="submit">Send</button>
+    </form>
+  </main>
+
+  <footer>
+    <small>Private demo — runs in browser. Optional OpenAI-compatible API support.</small>
+  </footer>
+
+  <!-- Owner password modal -->
+  <div id="pwModal" class="modal">
+    <div class="modal-content">
+      <h2>Owner sign-in</h2>
+      <p>This app is password-protected. Set or enter your owner password.</p>
+      <input id="pwInput" type="password" placeholder="owner password" />
+      <div class="row">
+        <button id="pwSet">Set / Sign in</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approval modal for model calls -->
+  <div id="approveModal" class="modal">
+    <div class="modal-content">
+      <h2>Approve model call</h2>
+      <div id="approveDetails"></div>
+      <div class="row">
+        <button id="approveBtn">Approve</button>
+        <button id="denyBtn">Deny</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <h2>Settings</h2>
+      <label>BASE_URL (OpenAI-compatible)</label>
+      <input id="baseUrl" placeholder="https://api.example.com" />
+      <label>MODEL</label>
+      <input id="modelName" placeholder="model-name" />
+      <label>API_KEY (optional - for browser-only demos it's safer to not store this)</label>
+      <input id="apiKey" placeholder="Paste API key here (optional)" />
+      <label>Password (owner only)</label>
+      <input id="ownerPw" placeholder="Change owner password (optional)" type="password" />
+      <div class="row">
+        <button id="saveSettings">Save</button>
+        <button id="closeSettings">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Embedded DevMind system prompt (owner-provided)
+    const SYSTEM_PROMPT = `You are DevMind, the owner's private senior full-stack engineer
+(web, WAP/mobile, backend, database, DevOps, cross-platform).
+
+MODEL
+- Runs on an open-source code LLM (e.g. Qwen2.5-Coder, DeepSeek-Coder,
+  Llama) through any OpenAI-compatible endpoint
+  (BASE_URL, MODEL, API_KEY are configurable).
+- Work in small stages and chunks so it fits smaller context windows.
+- No vendor quota logic: never throttle or refuse because of plan limits.
+
+ACCESS
+- Serve only the signed-in owner (password protected).
+- Before every build, state scope and estimated model calls,
+  and proceed only after the owner taps "Approve".
+
+PIPELINE
+Plan → Code → Debug → Test → Fix → Verify → Scale-check → Package
+
+QUALITY
+- Production-grade, secure (OWASP), complete code. No TODOs or placeholders.
+- Explain in the user's language (Marathi/Hindi/English). Code is English.
+
+VIRTUAL TESTING & SCALE-UP
+- Trace flows like an interpreter and report bugs with exact fixes.
+- Simulate load at 10 / 1,000 / 100,000 users; find bottlenecks
+  (DB, caching, queues) and give a scale-up plan.
+- Simulate failure cases. Never claim real execution.
+
+SELF-LEARNING
+- After each build, save lessons (bugs, fixes, feedback) to memory.
+- Retrieve relevant lessons before the next build.
+- New lessons are saved only with owner approval.
+`;
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
