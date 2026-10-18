@@ -14,6 +14,7 @@ const PORT = Number(process.env.PORT || 3000);
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, "data");
 const WORKSPACE = path.resolve(process.env.WORKSPACE_DIR || path.join(ROOT, "workspace"));
+const DEV_AUTH_BYPASS = process.env.DISABLE_AUTH === "true" && process.env.NODE_ENV !== "production";
 fs.mkdirSync(DATA_DIR, { recursive: true });
 fs.mkdirSync(WORKSPACE, { recursive: true });
 
@@ -59,6 +60,7 @@ app.use(session({
 app.use("/api/login", rateLimit({ windowMs: 15 * 60 * 1000, limit: 8, standardHeaders: true, legacyHeaders: false }));
 
 function requireAuth(req, res, next) {
+  if (DEV_AUTH_BYPASS) return next();
   if (!req.session || req.session.authenticated !== true) return res.status(401).json({ error: "Please sign in first." });
   next();
 }
@@ -91,6 +93,14 @@ app.get("/api/health", (_req, res) => res.json({
 
 app.get("/api/session", (req, res) => res.json({ authenticated: req.session?.authenticated === true }));
 app.post("/api/login", async (req, res) => {
+  if (DEV_AUTH_BYPASS) {
+    req.session.regenerate(err => {
+      if (err) return res.status(500).json({ error: "Could not start a secure session." });
+      req.session.authenticated = true;
+      req.session.save(saveErr => saveErr ? res.status(500).json({ error: "Could not save session." }) : res.json({ ok: true }));
+    });
+    return;
+  }
   const password = String(req.body?.password || "");
   if (!await bcrypt.compare(password, adminHash)) return res.status(401).json({ error: "Password is incorrect." });
   req.session.regenerate(err => {
