@@ -92,23 +92,56 @@ app.get("/api/health", (_req, res) => res.json({
 }));
 
 app.get("/api/session", (req, res) => res.json({ authenticated: req.session?.authenticated === true }));
-app.post("/api/login", async (req, res) => {
-  if (DEV_AUTH_BYPASS) {
-    req.session.regenerate(err => {
-      if (err) return res.status(500).json({ error: "Could not start a secure session." });
-      req.session.authenticated = true;
-      req.session.save(saveErr => saveErr ? res.status(500).json({ error: "Could not save session." }) : res.json({ ok: true }));
-    });
-    return;
-  }
-  const password = String(req.body?.password || "");
-  if (!await bcrypt.compare(password, adminHash)) return res.status(401).json({ error: "Password is incorrect." });
+
+function finishLogin(req, res) {
   req.session.regenerate(err => {
     if (err) return res.status(500).json({ error: "Could not start a secure session." });
     req.session.authenticated = true;
     req.session.save(saveErr => saveErr ? res.status(500).json({ error: "Could not save session." }) : res.json({ ok: true }));
   });
+}
+
+app.post("/api/login", async (req, res) => {
+  // Dev bypass: auto-login when explicitly allowed
+  if (DEV_AUTH_BYPASS) {
+    return finishLogin(req, res);
+  }
+
+  const password = String(req.body?.password || "");
+
+  // Normal admin password check
+  try {
+    if (await bcrypt.compare(password, adminHash)) return finishLogin(req, res);
+  } catch (e) {
+    // fall through to other checks
+  }
+
+  // Development-time temporary password options (do NOT enable in production)
+  if (process.env.NODE_ENV !== "production") {
+    // 1) ENV variable TEMP_ADMIN_PASSWORD (requires server restart to take effect)
+    if (process.env.TEMP_ADMIN_PASSWORD && password === String(process.env.TEMP_ADMIN_PASSWORD)) {
+      return finishLogin(req, res);
+    }
+
+    // 2) One-time temp password file: data/temp_admin_password (create this file with the desired password)
+    //    The file will be deleted after a successful login to avoid lingering credential exposure.
+    try {
+      const tempFile = path.join(DATA_DIR, "temp_admin_password");
+      if (fs.existsSync(tempFile)) {
+        const temp = fs.readFileSync(tempFile, "utf8").trim();
+        if (temp && password === temp) {
+          try { fs.unlinkSync(tempFile); } catch (e) { /* ignore deletion errors */ }
+          return finishLogin(req, res);
+        }
+      }
+    } catch (e) {
+      // ignore file errors and continue to reject
+    }
+  }
+
+  return res.status(401).json({ error: "Password is incorrect." });
 });
+
 app.post("/api/logout", requireAuth, (req, res) => req.session.destroy(() => {
   res.clearCookie("mypersonalai.sid", { httpOnly: true, sameSite: "strict", secure: process.env.NODE_ENV === "production" });
   res.json({ ok: true });
