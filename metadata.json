@@ -1,0 +1,8 @@
+{
+  "name": "MyPersonalAI Engineer",
+  "description": "Self-hostable, private AI coding engineer workspace with local and remote AI providers, confined code editor, and project planner.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

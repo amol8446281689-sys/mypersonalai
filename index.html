@@ -1,23 +1,26 @@
 <!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101827"><title>MyPersonalAI Engineer</title>
-<style>
-:root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--line:#26364f;--text:#e8eef8;--muted:#9aabc3;--accent:#73d6c4}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:9px;background:#1b2b43;color:var(--text);padding:9px 13px}button.primary{background:var(--accent);border-color:var(--accent);color:#08201c;font-weight:700}button:disabled{opacity:.5;cursor:wait}input,textarea,select{width:100%;background:#0b1525;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px}textarea{resize:vertical;min-height:120px}.hidden{display:none!important}.muted{color:var(--muted)}header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;border-bottom:1px solid var(--line);gap:12px}header strong{font-size:17px}.pill{font-size:12px;border:1px solid var(--line);padding:4px 8px;border-radius:99px;color:var(--muted)}main{max-width:1250px;margin:auto;padding:18px}.login{max-width:430px;margin:10vh auto;padding:25px;background:var(--panel);border:1px solid var(--line);border-radius:16px}.login h1{margin-top:0}.login label{display:block;margin:14px 0 6px}.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:16px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px;min-width:0}.side button{width:100%;text-align:left;margin:4px 0}.side button.active{border-color:var(--accent)}.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.row input{flex:1}.chat{height:48vh;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:12px;background:#0a1322}.msg{padding:10px 12px;border-radius:10px;margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}.msg.user{background:#1b3445;margin-left:8%}.msg.assistant{background:#172238;margin-right:8%}.composer{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}.composer textarea{min-height:75px}.status{margin:10px 0;color:var(--muted);font-size:13px}.filelist{max-height:55vh;overflow:auto}.fileitem{display:block;width:100%;text-align:left;margin:5px 0;overflow-wrap:anywhere}.fileeditor{min-height:45vh;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.warning{border-left:3px solid #e9b65d;padding:10px 12px;background:#2b2417;border-radius:6px;color:#f3dcae}.error{color:#ff9e9e}.success{color:var(--accent)}@media(max-width:760px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.side button{font-size:13px;padding:8px}.grid2{grid-template-columns:1fr}header{padding:12px}main{padding:10px}.chat{height:40vh}}
-</style></head>
-<body>
-<header><strong>⌘ MyPersonalAI <span class="muted">Engineer v2</span></strong><div class="row"><span id="health" class="pill">Checking server…</span><button id="logout" class="hidden">Sign out</button></div></header>
-<main>
-<section id="login" class="login"><h1>Private workspace</h1><p class="muted">Sign in with the administrator password configured on your server.</p><form id="loginForm"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required minlength="12"><p id="loginError" class="error"></p><button class="primary" type="submit" style="width:100%">Sign in</button></form><p class="muted">Your password is checked by the server. It is not saved in browser storage.</p></section>
-<section id="app" class="hidden"><div class="layout">
-<aside class="panel side"><button class="active" data-view="chat">✦ AI Engineer</button><button data-view="files">▤ Code workspace</button><button data-view="settings">⚙ Setup & status</button><p class="muted" style="font-size:12px">Local-first • self-hostable • private session</p></aside>
-<div>
-<section id="view-chat" class="panel view"><div class="row" style="justify-content:space-between"><div><h2 style="margin:0">AI Engineer</h2><p class="muted" style="margin:3px 0 12px">Ask questions, debug code, or plan a project.</p></div><select id="provider" style="max-width:180px"><option value="local">Local AI (Ollama)</option><option value="remote">Remote AI (API)</option></select></div><div class="chat" id="messages" aria-live="polite"><div class="msg assistant">नमस्कार! मी MyPersonalAI Engineer आहे. तुमचा प्रश्न किंवा कोड इथे पाठवा. कोड बदलण्यापूर्वी तो workspace मध्ये सेव्ह करा.</div></div><div class="composer"><textarea id="prompt" placeholder="Explain a bug, write code, or describe a task… (Ctrl+Enter to send)"></textarea><button id="send" class="primary">Send ↗</button></div><div id="chatStatus" class="status">Choose Local AI or configure a remote provider in .env.</div></section>
-<section id="view-files" class="panel view hidden"><h2>Code workspace</h2><p class="muted">Edit only files inside the configured workspace folder. This tool saves code; it does not execute generated code automatically.</p><div class="grid2"><div><div class="row"><button id="refreshFiles">Refresh</button><input id="newPath" placeholder="src/example.js"></div><button id="newFile" style="margin-top:8px">Create / open file</button><div id="fileList" class="filelist" style="margin-top:10px"></div></div><div><input id="filePath" placeholder="Selected file path"><textarea id="fileContent" class="fileeditor" placeholder="Choose or create a file…"></textarea><div class="row" style="margin-top:8px"><button id="saveFile" class="primary">Save file</button><span id="fileStatus" class="status"></span></div></div></div></section>
-<section id="view-settings" class="panel view hidden"><h2>Setup & status</h2><div id="statusDetails" class="status">Loading…</div><h3>Local AI (recommended)</h3><ol><li>Install Ollama from <a href="https://ollama.com" target="_blank" rel="noreferrer">ollama.com</a> on the same machine as this server.</li><li>Run <code>ollama pull qwen2.5-coder:7b</code> in a terminal.</li><li>Set <code>OLLAMA_MODEL=qwen2.5-coder:7b</code> in <code>.env</code>, then restart the server.</li></ol><h3>Remote AI (optional)</h3><p>Set <code>REMOTE_AI_BASE_URL</code>, <code>REMOTE_AI_API_KEY</code>, and <code>REMOTE_AI_MODEL</code> in the server's <code>.env</code>. Use a trusted OpenAI-compatible provider. API keys stay on the server.</p><div class="warning">For access outside your own computer, put this app behind HTTPS and preferably a VPN or identity-aware proxy. Do not expose port 3000 directly to the public internet. Configure a strong unique password and session secret.</div><p class="muted">Security note: this is a self-hostable starter, not a security-audited production service. Keep backups, update dependencies, and review AI-generated code before running it.</p></section>
-</div></div></section>
-</main>
-<script src="/app.js" defer></script>
-</body></html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1220" />
+    <title>MyPersonalAI Engineer</title>
+    <meta name="description" content="Self-hostable, private AI coding engineer workspace with local and remote AI providers, confined code editor, and project planner." />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="MyPersonalAI Engineer" />
+    <meta property="og:description" content="Self-hostable, private AI coding engineer workspace with local and remote AI providers, confined code editor, and project planner." />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="MyPersonalAI Engineer" />
+    <meta name="twitter:description" content="Self-hostable, private AI coding engineer workspace with local and remote AI providers, confined code editor, and project planner." />
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌘</text></svg>" />
+  </head>
+  <body class="bg-[#0b1220] text-[#e8eef8]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
